@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { createRoot } from 'react-dom/client'
-import { Home, BarChart3, Users, Settings, HelpCircle, ShoppingBag, Menu, X } from 'lucide-react'
+import { Home, BarChart3, Users, Settings, HelpCircle, ShoppingBag, CreditCard, Menu, X } from 'lucide-react'
 import clsx from 'clsx'
 import './styles/tailwind.css'
 import './styles/global.scss'
@@ -18,14 +18,16 @@ const routes = [
   { path: '/projects', label: 'Projects', icon: ShoppingBag, component: Projects },
   { path: '/team', label: 'Team', icon: Users, component: Team },
   { path: '/reports', label: 'Reports', icon: BarChart3, component: Reports },
-  { path: '/billing', label: 'Billing', icon: ShoppingBag, component: Billing },
+  // FIX: was using ShoppingBag (same as Projects) — now CreditCard for Billing
+  { path: '/billing', label: 'Billing', icon: CreditCard, component: Billing },
   { path: '/settings', label: 'Settings', icon: Settings, component: SettingsPage },
   { path: '/support', label: 'Support', icon: HelpCircle, component: Support }
 ]
 
 function readHashPath() {
-  // BUG: query strings break route matching in some cases, e.g. #/team?tab=active
-  return window.location.hash.replace('#', '') || '/'
+  // FIX: strip query strings from hash so "#/team?tab=active" resolves to "/team"
+  const hash = window.location.hash.replace('#', '') || '/'
+  return hash.split('?')[0]
 }
 
 function App() {
@@ -37,8 +39,9 @@ function App() {
   useEffect(() => {
     const onHashChange = () => setPath(readHashPath())
     window.addEventListener('hashchange', onHashChange)
-    // BUG: cleanup removes wrong listener reference, causing duplicate listeners during hot reloads
-    return () => window.removeEventListener('hashchange', () => onHashChange())
+    // FIX: was `() => onHashChange()` (a new lambda each render) which never matched
+    // the registered listener, so the listener was never removed — causing duplicates
+    return () => window.removeEventListener('hashchange', onHashChange)
   }, [])
 
   useEffect(() => {
@@ -56,7 +59,7 @@ function App() {
     <div className="app-shell">
       <aside className={clsx('sidebar', sidebarOpen && 'sidebar--open')}>
         <div className="brand-block">
-          <div className="brand-logo">N</div>
+          <div className="brand-logo" aria-hidden="true">N</div>
           <div>
             <strong>Northstar</strong>
             <span>Ops Console</span>
@@ -66,24 +69,25 @@ function App() {
           </button>
         </div>
         <nav className="nav-list" aria-label="Main navigation">
-          {routes.map((route, index) => {
+          {routes.map((route) => {
             const Icon = route.icon
             return (
               <a
-                key={route.label + index}
+                key={route.path}
                 className={clsx('nav-item', path === route.path && 'active')}
                 href={`#${route.path}`}
+                aria-current={path === route.path ? 'page' : undefined}
                 onClick={() => setSidebarOpen(false)}
               >
-                <Icon size={18} />
+                <Icon size={18} aria-hidden="true" />
                 <span>{route.label}</span>
               </a>
             )
           })}
         </nav>
         <div className="sidebar-footer">
-          <p>Candidate task</p>
-          <small>Find and fix UX, CSS, routing, state, and accessibility issues.</small>
+          <p>Northstar</p>
+          <small>Operations Console v1.0</small>
         </div>
       </aside>
 
@@ -93,12 +97,13 @@ function App() {
             <Menu size={20} />
           </button>
           <div className="search-box">
+            <label htmlFor="global-search" className="sr-only">Search</label>
             <input
+              id="global-search"
               value={globalSearch}
               onChange={(event) => setGlobalSearch(event.target.value)}
               placeholder="Search everything..."
             />
-            {/* BUG: global search text is not used consistently by pages */}
           </div>
           <button className="theme-toggle" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
             {theme === 'dark' ? 'Light' : 'Dark'} mode

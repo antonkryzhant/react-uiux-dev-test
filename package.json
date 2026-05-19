@@ -11,7 +11,6 @@
   },
   "dependencies": {
     "@tailwindcss/postcss": "latest",
-    "typography-stylecss": "latest",
     "@vitejs/plugin-react": "latest",
     "autoprefixer": "latest",
     "clsx": "latest",
@@ -21,7 +20,11 @@
     "react-dom": "latest",
     "sass": "latest",
     "tailwindcss": "latest",
+    "typography-stylecss": "latest",
     "vite": "latest"
   },
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "docx": "^9.6.1"
+  }
 }

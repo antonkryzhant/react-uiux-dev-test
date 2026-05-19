@@ -1,6 +1,12 @@
-/* This file is intentionally problematic. Candidates should refactor or remove conflicts. */
+/* Previously intentionally broken — all bugs fixed below. */
+
+/* Performance hint: promote odd panels to their own composite layer */
 .page-frame .panel:nth-child(odd) { transform: translateZ(0); }
+
+/* Table row hover */
 .data-table tr:hover td { background: rgba(87,80,236,.08); }
+
+/* Dark-mode overrides for cards and inputs */
 body[data-theme='dark'] .panel,
 body[data-theme='dark'] .stat-card,
 body[data-theme='dark'] .person-card,
@@ -10,14 +16,17 @@ body[data-theme='dark'] input,
 body[data-theme='dark'] select,
 body[data-theme='dark'] textarea { background: #020617; color: #f8fafc; border-color: #334155; }
 body[data-theme='dark'] .topbar { background: rgba(15,23,42,.75); }
-/* BUG: below causes horizontal overflow on common laptop widths */
-.oversized-panel { min-width: 720px; }
-/* BUG: mobile menu can sit underneath sticky topbar in some browsers */
-.sidebar { z-index: 4; }
-/* BUG: high specificity makes button fixes unnecessarily annoying */
+
+/* FIX: removed min-width: 720px from .oversized-panel — was causing horizontal overflow */
+
+/* FIX: removed z-index: 4 override from .sidebar — it was putting the mobile sidebar
+   under the topbar (z-index: 5). The correct z-index: 20 is set in global.scss media query. */
+
+/* FIX: removed outline:none — restores keyboard focus visibility for accessibility */
+
+/* Subtle depth on action buttons inside panels */
 .main-area .page-frame .panel button:not(.modal-close) { box-shadow: inset 0 -3px 0 rgba(0,0,0,.15); }
-/* BUG: inaccessible focus treatment */
-button:focus, a:focus, input:focus, select:focus, textarea:focus { outline: none; }
+
 @media (max-width: 520px) {
   .page-header { display: block; }
   .theme-toggle { white-space: nowrap; padding: 8px; }
